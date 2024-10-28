@@ -65,7 +65,7 @@ class PeakPositionsv2(tf.keras.layers.Layer):
         super(PeakPositionsv2, self).__init__()
         self.padding = padding
         self.threshold = threshold
-    """The output is made of spectra with only two values (0, 1000)."""
+    """The output is made of spectra with peaks at 1000."""
     
     def call(self, inputs):
         
