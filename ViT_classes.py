@@ -56,13 +56,11 @@ class AddCLS_L_Positional_v2(tf.keras.layers.Layer):
     def call(self, inputs):
         batch_size = tf.shape(inputs)[0]
 
-        # Dynamically broadcast CLS token to match batch size
         cls_tokens = tf.tile(self.cls_token, [batch_size, 1, 1])
 
-        # Concatenate CLS token with patch embeddings
         patch_embeddings = tf.concat([cls_tokens, inputs], axis=1)
 
-        # Add positional encodings
+       
         patch_embeddings = patch_embeddings + self.positional_encodings
 
         return patch_embeddings
