@@ -130,3 +130,53 @@ class AddCLS_L_Positional_v3(tf.keras.layers.Layer):
 
         return patch_embeddings
 
+
+
+class ViT(tf.keras.models.Model):
+
+    def __init__(self, num_outputs, sequence_size, patch_size, embedding_dim, num_heads, mlp_dim, num_layers, training = True, rate = 0.1, pool_3x = False):
+        super(ViT, self).__init__()
+        self.pool_3 = tf.keras.layers.MaxPooling1D(pool_size = 3)
+        self.pool_3x = pool_3x
+
+        self.num_patches = sequence_size // patch_size
+
+        self.generate_patches = PatchesSpectra_v2(num_patches=self.num_patches, embedding_dim = embedding_dim)
+
+        self.CLSandPositional = AddCLS_L_Positional_v2(num_patches = self.num_patches, embedding_dim = embedding_dim)
+
+        self.transf_block = [
+            Transf_Block_v2(embedding_dim=embedding_dim, num_heads=num_heads, mlp_dim = mlp_dim, rate = rate) for _ in range(num_layers)
+            ]
+
+        self.reg_head = tf.keras.Sequential([
+            tf.keras.layers.LayerNormalization(epsilon=1e-4),
+            tf.keras.layers.Dense(units=64, activation='gelu'),
+            tf.keras.layers.Dropout(rate = 0.1),
+            tf.keras.layers.Dense(units = num_outputs)
+        ])
+    
+    def call(self, inputs, training = True):
+        if self.pool_3x:
+
+            
+            if len(inputs.shape) == 2:
+                inputs = tf.expand_dims(inputs, axis=-1)
+
+
+            inputs = self.pool_3(inputs)
+
+        x = self.generate_patches(inputs)
+
+        x = self.CLSandPositional(x)
+
+        for block in self.transf_block:
+            x = block(x, training = training)
+        
+        cls_tokens = x[:, 0, :]
+        output = self.reg_head(cls_tokens)
+
+        
+        return output
+    
+
