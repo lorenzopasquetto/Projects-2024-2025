@@ -93,6 +93,9 @@ class Transf_Block_v2(tf.keras.layers.Layer):
 
 
 class AddCLS_L_Positional_v3(tf.keras.layers.Layer):
+    """
+    This version is meant to work with multiple cls tokens
+    """
     def __init__(self, embedding_dim, num_patches, num_tokens = 1):
         super(AddCLS_L_Positional_v3, self).__init__()
 
