@@ -1,38 +1,46 @@
 import tensorflow as tf
 
-class PatchesSpectra_v2(tf.keras.layers.Layer):
-    def __init__(self, num_patches, embedding_dim):
-        super(PatchesSpectra_v2, self).__init__()
-        self.num_patches = num_patches
-        self.projection = tf.keras.layers.Dense(units=embedding_dim)
+class Patches_spectra_27_11(tf.keras.layers.Layer):
     
-    def call(self, inputs):
-        
-        
-        if len(inputs.shape) == 2:
-            inputs = tf.expand_dims(inputs, axis=-1)
+    """
+    Create the patches from the initial spectra. The patches are then projected
+    to dimension given by embedding_dim
+    """
+
+    def __init__(self, num_patches, embedding_dim):
+        super(Patches_spectra_27_11, self).__init__()
+        self.num_patches = num_patches
+        self.embedding_dim = embedding_dim
+        self.dense = tf.keras.layers.Dense(units = self.embedding_dim)
+
+    def call(self, inputs, project = True):
+        if len(inputs.shape) < 3:
+            inputs = tf.expand_dims(inputs, axis = -1)
+
+        patch_dims = inputs.shape[1] // self.num_patches
+        batch_patch = []
 
 
-        batch_size = tf.shape(inputs)[0]
-        input_length = tf.shape(inputs)[1]
-        patch_dim = input_length // self.num_patches
-        
-        
-        patches = []
         for i in range(self.num_patches):
-            patch = tf.reshape(
-                inputs[:, i * patch_dim: (i + 1) * patch_dim, :],
-                shape=(batch_size, patch_dim, 1, 1)
-            )
-            patches.append(patch)
+            patch = inputs[:,i * patch_dims: (i+1) * patch_dims, :]
+            #print(patch.shape)
+            batch_patch.append(patch)
         
-        X_out = tf.concat(patches, axis=3)
-        
-        temp = tf.reshape(X_out, shape=(batch_size, self.num_patches, patch_dim))
-        
-        return self.projection(temp)
+        temp = tf.transpose(tf.concat(batch_patch, axis = -1), perm = [0, 2, 1])
+
+        if project:
+            return self.dense(temp)
+        else: 
+            return temp
 
 class AddCLS_L_Positional_v2(tf.keras.layers.Layer):
+    
+    """
+    Add positional encoding as learnable parameters the each patch. An additional 
+    cls patch is created. This with store the info and is the only token used by the 
+    MLP head
+    """
+
     def __init__(self, embedding_dim, num_patches):
         super(AddCLS_L_Positional_v2, self).__init__()
         self.embedding_dim = embedding_dim
@@ -67,6 +75,12 @@ class AddCLS_L_Positional_v2(tf.keras.layers.Layer):
 
 
 class Transf_Block_v2(tf.keras.layers.Layer):
+    
+    """
+    Usual transformer block introduced by Ashish Vaswani et al., in 'Attention is all you need'.
+    
+    """
+
     def __init__(self, embedding_dim, num_heads, mlp_dim, rate = 0.2):
 
         super(Transf_Block_v2, self).__init__()
@@ -133,6 +147,11 @@ class AddCLS_L_Positional_v3(tf.keras.layers.Layer):
 
 
 class ViT(tf.keras.models.Model):
+    
+    """
+    Enseble of the blocks defined above.
+    """
+
 
     def __init__(self, num_outputs, sequence_size, patch_size, embedding_dim, num_heads, mlp_dim, num_layers, training = True, rate = 0.1, pool_3x = False):
         super(ViT, self).__init__()
