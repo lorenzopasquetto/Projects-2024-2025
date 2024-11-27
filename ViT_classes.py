@@ -48,7 +48,7 @@ class AddCLS_L_Positional_v2(tf.keras.layers.Layer):
 
 
         self.cls_token = self.add_weight(
-            shape=(1, 1, embedding_dim), # <------ ADD THE SAME ENCODING THE ALL THE PATCHES?!
+            shape=(1, 1, embedding_dim), 
             initializer="zeros",
             trainable=True,
             name="cls_token"
