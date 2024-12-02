@@ -68,4 +68,28 @@ elements = [
     "Cf"
     ]
 
+
+#################################################
+count = 0
+range_val=25
+min_displ = 0.1
+X_data = [None]
+parameters = [None]
+
+for i in elements:
+    for k in range(len(elements)):
+        
+        species = i
+        species2 = elements[k]
+        
+        for j in range(range_val):
+                    
+                    lattice_parameters = [2.5 + min_displ*j, 2.5 + min_displ*j, 2.5 +  min_displ*j, 90, 90, 90]
+                    X = create_dataset_cubic(lattice_parameter=2.5 + (0.1 * j), species=i)
+                    X_data.append(X)
+                    if len(X_data)%10: print(len(X_data))
+                    parameters.append(lattice_parameters)
+                    #print("Elements: ", i, elements[k], "Iteration: ", j, "--> ", lattice_parameters[0], "\u212B")
+        
+        
     
