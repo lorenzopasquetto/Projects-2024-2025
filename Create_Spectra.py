@@ -15,7 +15,7 @@ lorentzian /= np.sum(lorentzian_kernel(a))
 
 
 
-def create_dataset_cubic(lattice_parameter, species):
+def create_spectra_cubic(lattice_parameter, species):
     
     a = lattice_parameter  
     lattice = Lattice.cubic(a)
@@ -39,4 +39,21 @@ def create_dataset_cubic(lattice_parameter, species):
 
     spectra = convolve(init_array, lorentzian, mode='same')
     spectra = (spectra * 1000) / (np.max(spectra))
+
+
+
+def create_dataset(elements, range_val=25, min_displ = 0.1):
+    X_data = [None]
+    parameters = [None]
+    for i in elements:
+            for j in range(range_val):
+                    
+                    lattice_parameters = [2.5 + min_displ*j, 2.5 + min_displ*j, 2.5 +  min_displ*j, 90, 90, 90]
+                    X = create_spectra_cubic(lattice_parameter=2.5 + (0.1 * j), species=i)
+                    X_data.append(X)
+                    parameters.append(lattice_parameters)
+                    print("Element: ", i, "Iteration: ", j, "--> ", lattice_parameters[0], "\u212B")
+    return np.stack(X_data[1:]), np.stack(parameters[1:])
+                    
+                    
     
