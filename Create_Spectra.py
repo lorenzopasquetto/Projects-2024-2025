@@ -1,4 +1,4 @@
-mport numpy as np
+import numpy as np
 
 from pymatgen.core import Lattice, Structure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
