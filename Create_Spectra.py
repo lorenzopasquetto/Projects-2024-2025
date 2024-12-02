@@ -14,14 +14,14 @@ lorentzian = lorentzian_kernel(a)
 lorentzian /= np.sum(lorentzian_kernel(a))
 
 
-
-def create_spectra_cubic(lattice_parameter, species):
+def create_spectra_cubic(lattice_parameter, species, species2 = None):
+    if species2 == None: species2 = species
     
     a = lattice_parameter  
     lattice = Lattice.cubic(a)
 
     # Atomic species and their coordinates in the unit cell
-    species = [species, species]
+    species = [species, species2]
     coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
 
     # Create structure
@@ -39,7 +39,8 @@ def create_spectra_cubic(lattice_parameter, species):
 
     spectra = convolve(init_array, lorentzian, mode='same')
     spectra = (spectra * 1000) / (np.max(spectra))
-
+    return spectra
+    
 
 
 def create_dataset(elements, range_val=25, min_displ = 0.1):
