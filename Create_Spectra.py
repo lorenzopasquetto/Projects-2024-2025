@@ -100,7 +100,7 @@ def read_folder(cif_folder):
             parser = CifParser(cif_path)
             structures = parser.get_structures()
             if structures:
-                #print("Parsed structure:", structures[0])
+                #print("Parsed structure: ", structures[0])
                 for struc in structures:
                     species.append(struc.species)
                     coord.append(struc.frac_coords)
@@ -137,6 +137,37 @@ final_spectra = spectra[:4500] # final shape is (4500, 1)
 
 """
 
+
+def create_data_set(species, coord, lattice_params):
+    spectrum = []
+    """
+    Suppose to have as input the output read_folder function. This function create the np dataset
+    with shape = (len(species), 4500)
+
+    """
+    if len(species) != len(coord) != len(lattice_params):
+        print("Check data! Lenghts do not correspond")
+    else:
+        xrd_calculator = XRDCalculator(wavelength="CuKa")
+
+        data_size = len(species)
+        for i in range(data_size):
+            print(i)
+
+            structure = Structure(Lattice_fp(lattice_params[i]), species[i], coord[i])
+            
+
+            pattern = xrd_calculator.get_pattern(structure) 
+
+            peaks_ = np.round(pattern.x * 4500/90).astype(int)
+            init_array = np.zeros(4501)
+            init_array[peaks_] = pattern.y  # This is the spectra of Delta peaks with different intensities
+
+            spectra = convolve(init_array, lorentzian, mode='same')
+            spectra = (spectra * 1000) / (np.max(spectra))
+            spectrum.append(spectra[:4500]) # final shape is (4500, 1)
+
+    return np.stack(spectrum, axis = 0)
 
 
 #################################################
