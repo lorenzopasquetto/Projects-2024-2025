@@ -50,10 +50,28 @@ def Lattice_fp(x):
     return  Lattice.from_parameters(x[0], x[1], x[2], x[3], x[4], x[5])
 
 
+def gen_spectra(lattice_params, coords, species):
+    
+    lattice = Lattice_fp(lattice_params)
+    structures = Structure(lattice, species, coords)
+    xrd_calculator = XRDCalculator(wavelength="CuKa")
+
+    pattern = xrd_calculator.get_pattern(structures)
+
+    peaks_ = np.round(pattern.x * 4500/90).astype(int)
+
+    init_array = np.zeros(4501)
+    init_array[peaks_] = pattern.y  # This is the spectra of Delta peaks with different intensities
+
+    spectra = convolve(init_array, lorentzian, mode='same')
+    spectra = (spectra * 1000) / (np.max(spectra))
+
+    return spectra[:4500], lattice_params
 
 
 
-def gen_spectra_1(args):
+
+def gen_spectra_pbar(args):
     lattice_params, coords, species = args
     
     lattice = Lattice_fp(lattice_params)
@@ -102,11 +120,21 @@ def main():
     
     params_ = list(zip(lattice_params_, coords_l, elems_l))
     results = []
+
+    
     with mp.Pool(processes=mp.cpu_count()) as pool:
         with tqdm(total=num_spectra) as pbar:  # Progress bar in the main process
-            for result in pool.imap_unordered(gen_spectra_1, params_):
+            for result in pool.imap_unordered(gen_spectra_pbar, params_):
                 results.append(result)
                 pbar.update(1)
+    """
+    No-pbar version 
+    
+    with mp.Pool(processes=mp.cpu_count()) as pool:
+        results = pool.starmap(gen_spectra, params_)
+    """
+
+    
     print(f"Generated {len(results)} spectra.")
     return results
 
