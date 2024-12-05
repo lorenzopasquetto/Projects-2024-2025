@@ -76,8 +76,6 @@ elements = [
 cif_folder = "/Users/loernzopasquetto/Desktop/cod/cif/7/00/01"
 
 def Lattice_fp(x):
-    
-    
     return  Lattice.from_parameters(x[0], x[1], x[2], x[3], x[4], x[5])
 
 def read_folder(cif_folder):
