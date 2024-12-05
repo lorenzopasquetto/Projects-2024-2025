@@ -107,3 +107,28 @@ def main():
     print(f"Generated {len(results)} spectra.")
     return results
 
+
+
+if __name__ == "__main__":
+    
+    results_ = main()
+
+    
+    spect = []
+    params_ = []
+    for i in results_:
+        spect.append(i[0])
+        params_.append(i[1])
+
+    X_data = np.stack(spect, axis = 0)
+    y_data = np.stack(params_, axis = 0)
+    np.save(".../X_data_tric_created", X_data)
+    np.save(".../y_data_tric_created", y_data)
+    print(X_data.shape, y_data.shape)
+    
+
+
+
+
+
+
