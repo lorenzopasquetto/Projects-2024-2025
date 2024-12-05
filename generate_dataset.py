@@ -1,11 +1,11 @@
 import numpy as np
-
 import os
+import random
+
 from pymatgen.io.cif import CifParser
-
-
 from pymatgen.core import Lattice, Structure
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
+
 import matplotlib.pyplot as plt
 from scipy.signal import convolve
 
