@@ -74,6 +74,9 @@ def gen_spectra_1(args):
 
 
 def main():
+    """
+    Parallel generation of spectra using mp with progression bar 
+    """
     
     num_spectra = 100000
 
