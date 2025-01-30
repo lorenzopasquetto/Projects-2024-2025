@@ -59,6 +59,8 @@ def create_spectra(path):
 
 
 # Intensive CPU task -> ProcessPoolExecutor
+# Ideal to merge the crystal systems reading process and the spectra creation -> modify extrapolate_cs and create_spectra functions
+
 def process_files_parallel(folder_path, max_workers, limit = 8000):
     with os.scandir(folder_path) as entries:
         file_entries = [entry.path for entry in entries if entry.is_file() and entry.name.endswith(".CIF")][:limit]
@@ -119,5 +121,45 @@ if __name__ == "__main__":
     # Run the parallel CIF processing
     print("Cores available: ", os.cpu_count())
     limit = 540000
-    #peak_arrays = process_files_parallel(dir, max_workers=os.cpu_count(), limit = limit)  # Str of arrays
+    peak_arrays = process_files_parallel(dir, max_workers=os.cpu_count(), limit = limit)  # Str of arrays
     cs_lattice = process_files_parallel_cs(dir, max_workers=os.cpu_count(), limit = limit)
+
+
+
+
+    
+    # reduce memory load saving the np arrays of dimensions (20000,4501)
+    spectrum = []
+    lattices = []
+    index_file = 0
+    
+    a = np.arange(-2, 2, 0.01)
+
+    lorentzian = lorentzian_kernel(a)
+    lorentzian /= np.sum(lorentzian_kernel(a))
+        
+    for ind, i in enumerate(peak_arrays):
+
+        if (ind % 20000 == 0 and ind != 0) or ind == limit-1:
+            X_data = np.stack(spectrum, axis = 0)
+            y_data = np.stack(lattices, axis=0)
+            print(index_file)
+            np.save(f'/home/lopasq/data/GNoME_data/GNoME_comp/X_data_{index_file}', X_data)
+            np.save(f'/home/lopasq/data/GNoME_data/GNoME_comp/y_data_{index_file}', y_data)
+            index_file +=1
+            spectrum = []
+            lattices = []
+
+
+
+        spectra, lattice_params = translate_spectra(i)
+        spectrum.append(spectra)
+        lattices.append(lattice_params)
+
+
+
+
+
+
+
+
