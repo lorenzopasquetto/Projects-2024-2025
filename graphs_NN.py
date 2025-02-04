@@ -74,7 +74,7 @@ class MAPELoss(nn.Module):
     def forward(self, pred, target):
         return torch.mean(torch.abs((target - pred) / (target + self.eps))) * 100
 
-### model ###
+### models ###
 
 
 
