@@ -1,5 +1,20 @@
 import numpy as np
+import itertools
 
+
+
+def miller_indx(int_max):
+  """
+  Create a triple of integer until int_max (not included)
+  int_max = 2 --> [(0, 0, 1), (0, 1, 0), (0, 1, 1), (1, 0, 0), (1, 0, 1), (1, 1, 0), (1, 1, 1)]
+  int_max = 3 --> [(0, 0, 1), (0, 0, 2), (0, 1, 0), (0, 1, 1), (0, 1, 2), (0, 2, 0), (0, 2, 1), (0, 2, 2), (1, 0, 0), (1, 0, 1), (1, 0, 2), (1, 1, 0), (1, 1, 1), (1, 1, 2), (1, 2, 0), (1, 2, 1), (1, 2, 2), (2, 0, 0), (2, 0, 1), (2, 0, 2), (2, 1, 0), (2, 1, 1), (2, 1, 2), (2, 2, 0), (2, 2, 1), (2, 2, 2)]
+  """
+  
+  integers = range(int_max)
+  miller_ind_ = list(itertools.product(integers, repeat=3))
+  miller_ind = [x for x in miller_ind_ if x != (0, 0, 0)]
+  
+  return miller_ind
 
 def reciprocal_metric_tensor_v2(a, b, c, alpha, beta, gamma):
   """
